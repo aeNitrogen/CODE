@@ -1,0 +1,31 @@
+ self.enc_att_1 = nn.MultiheadAttention(13, num_heads=n_heads, dropout=dropout, batch_first=True)
+        self.enc_att_2 = nn.MultiheadAttention(13, num_heads=n_heads, dropout=dropout, batch_first=True)
+        self.enc_att_3 = nn.MultiheadAttention(13, num_heads=n_heads, dropout=dropout, batch_first=True)
+        self.enc_att_4 = nn.MultiheadAttention(13, num_heads=n_heads, dropout=dropout, batch_first=True)
+        self.enc_att_5 = nn.MultiheadAttention(13, num_heads=n_heads, dropout=dropout, batch_first=True)
+        self.enc_att_6 = nn.MultiheadAttention(13, num_heads=n_heads, dropout=dropout, batch_first=True)
+
+        self.enc_full_1 = nn.Linear(13, 13)
+        self.enc_full_2 = nn.Linear(13, 13)
+        self.enc_full_3 = nn.Linear(13, 13)
+        self.enc_full_4 = nn.Linear(13, 13)
+        self.enc_full_5 = nn.Linear(13, 13)
+        self.enc_full_6 = nn.Linear(13, 13)
+
+        self.enc_norm = nn.LayerNorm(13)
+
+        self.dec_att_1 = nn.MultiheadAttention(13, num_heads=n_heads, dropout=dropout, batch_first=True)
+        self.dec_att_2 = nn.MultiheadAttention(13, num_heads=n_heads, dropout=dropout, batch_first=True)
+        self.dec_att_3 = nn.MultiheadAttention(13, num_heads=n_heads, dropout=dropout, batch_first=True)
+        self.dec_att_4 = nn.MultiheadAttention(13, num_heads=n_heads, dropout=dropout, batch_first=True)
+        self.dec_att_5 = nn.MultiheadAttention(13, num_heads=n_heads, dropout=dropout, batch_first=True)
+        self.dec_att_6 = nn.MultiheadAttention(13, num_heads=n_heads, dropout=dropout, batch_first=True)
+
+        self.dec_att1_1 = nn.MultiheadAttention(13, num_heads=n_heads, dropout=dropout, batch_first=True)
+        self.dec_att1_2 = nn.MultiheadAttention(13, num_heads=n_heads, dropout=dropout, batch_first=True)
+        self.dec_att1_3 = nn.MultiheadAttention(13, num_heads=n_heads, dropout=dropout, batch_first=True)
+        self.dec_att1_4 = nn.MultiheadAttention(13, num_heads=n_heads, dropout=dropout, batch_first=True)
+        self.dec_att1_5 = nn.MultiheadAttention(13, num_heads=n_heads, dropout=dropout, batch_first=True)
+        self.dec_att1_6 = nn.MultiheadAttention(13, num_heads=n_heads, dropout=dropout, batch_first=True)
+
+        self.dec_norm = nn.LayerNorm(13)
