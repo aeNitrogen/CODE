@@ -1,0 +1,32 @@
+---
+# Slurm config bwuni gpu
+name: "SLURM"   # MUST BE "SLURM"
+partition: "gpu_8"  # "single" for cpu, "gpu_4" or gpu_8" for gpu
+job-name: "test_uc" # this will be the experiment's name in slurm
+num_parallel_jobs: 30  # max number of jobs executed in parallel
+ntasks: 1   #  leave that like it is
+cpus-per-task: 4   # there are 5 cores for each GPU on the gpu_8 queue and 10 per GPU on the gpu_4 queue. Never use 5! don't ask why!
+mem-per-cpu: 2250 # in mb
+time: 20   # in minutes
+sbatch_args:   # gpus need to be explicitly requested using this
+  gres: "gpu:1" #and this (specifies number of gpus requested)
+
+---
+name: "DEFAULT"
+# all req fields
+repetitions: 1 # number of times one set of params is run (hyperparams)
+iterations: 3000 # number of iterations per repetition
+path: "/home/kit/anthropomatik/qh0834/Alr/Thesis/Results/tests/default"
+params:
+  architecture: "transformer"
+  training_data: "some/path"
+grid:
+  learning_rate: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+  sequence_length: [100, 150, 200]
+
+---
+name: "test-0"
+path: "/home/kit/anthropomatik/qh0834/Alr/Thesis/Results/tests/test-0"
+params:
+  learning_rate: 0.1
+  sequence_length: 150

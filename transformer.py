@@ -3,7 +3,6 @@ import torch.nn as nn
 import torch.optim as optim
 import posEnc
 import numpy as np
-import time
 from torch.nn import functional as F
 import utils_ba
 
@@ -23,6 +22,10 @@ class Transformer(nn.Module):
     def __init__(self, n_hidden_enc=256, n_hidden_dec=256, n_heads=4, dropout=0.1, forecasting_len=96, d_model=1024,
                  encoder_len=96, dec_overlap=5):
         super().__init__()
+        self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        print("DEBUG: Transformer Device: " + self.device)
+        torch.set_default_device(self.device)
+
         self.dec_overlap = dec_overlap
         self.forecasting_len = forecasting_len
         self.train = True
