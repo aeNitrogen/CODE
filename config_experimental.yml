@@ -7,26 +7,35 @@ num_parallel_jobs: 30  # max number of jobs executed in parallel
 ntasks: 1   #  leave that like it is
 cpus-per-task: 4   # there are 5 cores for each GPU on the gpu_8 queue and 10 per GPU on the gpu_4 queue. Never use 5! don't ask why!
 mem-per-cpu: 2250 # in mb
-time: 5   # in minutes
+time: 20   # in minutes
 sbatch_args:   # gpus need to be explicitly requested using this
   gres: "gpu:1" #and this (specifies number of gpus requested)
 
 ---
-name: "DEFAULT"
-# all req fields
-repetitions: 1 # number of times one set of params is run (hyperparams)
-iterations: 3000 # number of iterations per repetition
-path: "/home/kit/anthropomatik/qh0834/Alr/Thesis/Results/tests/default"
-params:
+name: DEFAULT
+iterations: 3000
+run_cap: 40
+method: "random"
+metric:
+  name: "validation_loss"
+  goal: "minimize"
+parameters:
   architecture: "transformer"
-  training_data: "some/path"
-grid:
-  learning_rate: [0.1] #, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-  sequence_length: [100] #, 150, 200]
-
----
-name: "test-0"
-path: "/home/kit/anthropomatik/qh0834/Alr/Thesis/Results/tests/test-0"
-params:
-  learning_rate: 0.1
-  sequence_length: 150
+  learning_rate:
+    distribution: "q_log_uniform"
+    min: 0.00001
+    max: 0.2
+  d_model:
+    values: [256, 512, 1024, 2048, 4096, 8192]
+  dropout:
+    values: [0, 0.1, 0.3, 0.5]
+  n_hidden_decoder:
+    values: [256, 512, 2048, 8192]
+  n_hidden_encoder:
+    values: [256, 512, 2048, 8192]
+  decoder_overlap: 5
+  prediction_length: 500
+  lookback_window: 150
+  seed: 8055
+  n_heads: 4
+  individual: None

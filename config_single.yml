@@ -7,7 +7,7 @@ num_parallel_jobs: 30  # max number of jobs executed in parallel
 ntasks: 1   #  leave that like it is
 cpus-per-task: 4   # there are 5 cores for each GPU on the gpu_8 queue and 10 per GPU on the gpu_4 queue. Never use 5! don't ask why!
 mem-per-cpu: 2250 # in mb
-time: 5   # in minutes
+time: 20   # in minutes
 sbatch_args:   # gpus need to be explicitly requested using this
   gres: "gpu:1" #and this (specifies number of gpus requested)
 
@@ -20,9 +20,8 @@ path: "/home/kit/anthropomatik/qh0834/Alr/Thesis/Results/tests/default"
 params:
   architecture: "transformer"
   training_data: "some/path"
-grid:
-  learning_rate: [0.1] #, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-  sequence_length: [100] #, 150, 200]
+  learning_rate: 0.1
+  sequence_length: 150
 
 ---
 name: "test-0"
