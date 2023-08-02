@@ -21,8 +21,15 @@ norm_actions = None
 norm_diff = None
 norm_targets = None
 
+device = "cuda:0" if torch.cuda.is_available() else "cpu"
+print("DEBUG: Device: " + device)
+torch.set_default_device(device)
+
 
 def assign(data):
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    print("DEBUG: Device: " + device)
+    torch.set_default_device(device)
     global train_obs
     global train_act
     global train_targets
@@ -52,11 +59,26 @@ def assign(data):
 
 # makes no sense as of now
 def normalize(tensor, normalizer_, graph):
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    print("DEBUG: Device: " + device)
+    print(normalizer_)
+    # assert device == "cuda:0"
+    device = torch.device(device)
+    torch.set_default_device(device)
     batch_number = tensor.size()[0]
-    norm_sub = normalizer_[0][None, :][None, :]
-    norm_s = torch.repeat_interleave(torch.tensor(normalizer_[0])[None, :], torch.tensor([900]), dim=0)
-    norm_s = torch.repeat_interleave(norm_s[None, :], torch.tensor([batch_number]), dim=0)
+    # norm_sub = normalizer_[0][None, :][None, :]  # values to be subtracted
+    norm_s = torch.repeat_interleave(torch.tensor(normalizer_[0], device=device)[None, :], torch.tensor([900],
+                                                                                                        device=device),
+                                     dim=0)  # values to be subtracted, extend to time
+    norm_s = torch.repeat_interleave(norm_s[None, :], torch.tensor([batch_number], device=device), dim=0)  # extendBatch
     norm_div = normalizer_[1][None, :][None, :]
+    norm_div = torch.tensor(norm_div)
+    norm_div = norm_div.to(device=device, copy=True)
+    assert norm_div.device == device
+    norm_s = norm_s.to(device=device, copy=True)
+    assert norm_s.device == device
+    tensor = tensor.to(device=device, copy=True)
+    assert tensor.device == device
     result = (tensor - norm_s) / norm_div
     if graph:
         data_plotter.plot_tensor(tensor, 100)
