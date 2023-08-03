@@ -3,15 +3,27 @@ import torch.nn as nn
 import numpy as np
 import torch
 
-torch.manual_seed(8055)
-
 
 def getMinibatch(input, fLen=96, iLen=96, T=13, Out_num=9):
     length = input.size()[1]
-    start_pos = np.random.randint(0, length - iLen - fLen)
+    start_pos = np.random.randint(0, length - iLen - fLen - 1)
     input_batched = input[:, start_pos:start_pos + iLen, :]
     target = input[:, start_pos + iLen:start_pos + iLen + fLen, :]
     return input_batched, target[:, :, T - Out_num:], target[:, :, :T - Out_num]
+
+# _______actually used_______
+def get_single(input, pred_len, seq_len, in_dim, out_dim):
+    length = input.size()[1]
+    start_pos = np.random.randint(0, length - pred_len - seq_len - 1)
+    input_batched = input[:, start_pos:start_pos + seq_len, :]  # slice the used input
+    target = input[:, start_pos + seq_len:start_pos + seq_len + pred_len, :]  # whole target, including actions
+    start_token = target.clone()
+    start_token[:, :, in_dim - out_dim:] = torch.zeros_like(target[:, :, in_dim - out_dim:])
+    input_batched = torch.cat((input_batched, start_token), 1)
+
+    target_wo_actions = target[:, :, in_dim - out_dim:]
+
+    return input_batched, target_wo_actions
 
 def getMinibatch_linear(input, fLen=10, iLen=96, T=13, Out_num=9, inf=False):
     length = input.size()[1]
