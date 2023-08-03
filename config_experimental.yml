@@ -20,22 +20,48 @@ metric:
   name: "validation_loss"
   goal: "minimize"
 parameters:
+  seed: 8055
   architecture: "transformer"
   learning_rate:
     distribution: "q_log_uniform"
     min: 0.00001
     max: 0.2
-  d_model:
-    values: [256, 512, 1024, 2048, 4096, 8192]
-  dropout:
-    values: [0, 0.1, 0.3, 0.5]
-  n_hidden_decoder:
-    values: [256, 512, 2048, 8192]
-  n_hidden_encoder:
-    values: [256, 512, 2048, 8192]
-  decoder_overlap: 5
+
+  # cause of actions start token len has to be overlap + pred len
+  overlap:
+    values: [0, 5, 20, 50]
   prediction_length: 500
   lookback_window: 150
-  seed: 8055
+
+  # _______PatchTST_______
+
+  fc_dropout: 0.05
+  head_dropout: 0.0
+  patch_length: 16
+  stride: 8
+  padding_patch: "end"
+  revin: 1
+  affine: 0
+  subtract_last: 0
+  decomposition: 0
+  kernel_size: 25
+  individual: 0 # individual head; True 1 False 0
+
+  # _______Formers_______
+
+  embed_type: 0 # 0: default 1: value embedding + temporal embedding + positional embedding 2: value embedding + temporal embedding 3: value embedding + positional embedding 4: value embedding
+  # input_dim: # depends on data, done in code
+  output_size: 9 # depends on data and task
+  d_model:
+    values: [ 256, 512, 1024, 2048, 4096, 8192 ]
   n_heads: 4
-  individual: None
+  encoder_layers: 2
+  decoder_layers: 1
+  d_fcn: 2048 # [512, 1024, 2048, 4096]?
+  moving_average: 25 # try 5, 50, 100
+  distilling: True # attention distilling in encoder
+  dropout:
+    values: [ 0, 0.1, 0.3, 0.5 ]
+  embed: "timeF" # options [timeF, fixed, learned]
+  activation: "gelu" # options "relu", "gelu"
+  output_attention: False
