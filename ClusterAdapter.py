@@ -80,9 +80,6 @@ def normalize(tensor, normalizer_, graph):
     tensor = tensor.to(device=device, copy=True)
     assert tensor.device == device
     result = (tensor - norm_s) / norm_div
-    if graph:
-        data_plotter.plot_tensor(tensor, 100)
-        data_plotter.plot_tensor(result, 100)
     return result
 
 
