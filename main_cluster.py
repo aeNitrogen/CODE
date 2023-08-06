@@ -45,33 +45,26 @@ class HyperparamOpt(experiment.AbstractIterativeExperiment):
 
     def iterate(self, cw_config: dict, rep: int, n: int) -> dict:
 
-        self.h3 % 300
+        self.h3 %= 300
 
         if self.h3 == 0:
             print("torch.cuda.memory_allocated: %fGB" % (torch.cuda.memory_allocated(0) / 1024 / 1024 / 1024))
             print("torch.cuda.memory_reserved: %fGB" % (torch.cuda.memory_reserved(0) / 1024 / 1024 / 1024))
             print("torch.cuda.max_memory_reserved: %fGB" % (torch.cuda.max_memory_reserved(0) / 1024 / 1024 / 1024))
 
-        self.h3 = 0
+        self.h3 += 1
 
         with torch.device("cuda:0"):
             return self.iterator.iterate()
-        # ClusterAdapter.run(cw_config)
 
 
 if __name__ == "__main__":
     print("start_main")
-    # cw = cw2.cluster_work.ClusterWork(HyperparamOpt_nonIterative)
-    # print(wandb.Settings().__str__())
-    #wandb.setup(wandb.Settings())
-    WANDB_API_KEY = "0542663e58cbd656b41998c3db626e17e4276f16"
-    # WANDB_NAME = "run"
+
+    # WANDB_API_KEY = "0542663e58cbd656b41998c3db626e17e4276f16"
     # wandb.login(key=WANDB_API_KEY)  # , anonymous="never", )
-    # print("ahno")
+
     cw = cluster_work.ClusterWork(wrap_experiment(HyperparamOpt))
-    # print("1")
     create_sweep(cw)
-    # print("2")
     cw.add_logger(SweepLogger())
-    # print("DEBUG: cw setup finished")
     cw.run()
