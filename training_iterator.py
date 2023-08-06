@@ -60,31 +60,28 @@ class training_iterator:
                 self.optimizer.zero_grad()
                 x, y = utils_ba.get_single(self.train, self.pred_len, self.seq_len, self.data_dim, self.out_dim)
                 out = self.model.forward(x)
-                # print(out.size())
                 out = out[:, :, self.data_dim - self.out_dim:]
                 loss = criterion(out, y)
-                print("here?")
                 loss.backward()
-                print("no")
                 return loss
 
             self.optimizer.step(closure)
-            # print("2")
+
             ret_dict = {}
 
             self.model.eval()
             with torch.no_grad():
                 x, y = utils_ba.get_single(self.val, self.pred_len, self.seq_len, self.data_dim, self.out_dim)
-                # print("bef")
+
                 out = self.model.forward(x)
-                # print("aft")
+
                 out = out[:, :, self.data_dim - self.out_dim:]
                 loss = criterion(out, y)
-                # print("crit1")
+
                 rmse = torch.sqrt(loss)
-                # print("sqrt")
+
                 mae = mae_crit(out, y)
-                # print("crit2")
+
                 rmae = torch.sqrt(mae)
                 ret_dict = {
                     'validation_loss': loss,
@@ -92,5 +89,5 @@ class training_iterator:
                     'mae': mae,
                     'rmae': rmae
                 }
-            print("iter done")
+
         return ret_dict
