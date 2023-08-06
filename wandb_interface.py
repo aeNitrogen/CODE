@@ -63,15 +63,15 @@ def log(data, seq_len, pred_len, opt, epochs, architecture, lr=0.2, info="", hid
 
 def getName(config: dict, iterations):
 
-    name = config["architecture"] + "-lr:" + config["learning_rate"] + "-epochs:" + iterations + "-pred_len:" + \
-           config["prediction_length"] + '-lbw:' + config["lookback_window"]
+    name = config["architecture"] + "-lr:" + config["learning_rate"].__str__() + "-epochs:" + iterations.__str__() + "-pred_len:" + \
+           config["prediction_length"].__str__() + '-lbw:' + config["lookback_window"].__str__()
     return name
 
 
 def init(config: dict, iterations):
 
-    WANDB_API_KEY = "0542663e58cbd656b41998c3db626e17e4276f16"
-    wandb.login(key=WANDB_API_KEY)
+    # WANDB_API_KEY = "0542663e58cbd656b41998c3db626e17e4276f16"
+    # wandb.login(key=WANDB_API_KEY)
     wandb.init(
         project="battery",
         config=config,

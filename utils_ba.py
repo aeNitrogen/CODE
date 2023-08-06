@@ -13,6 +13,7 @@ def getMinibatch(input, fLen=96, iLen=96, T=13, Out_num=9):
 
 # _______actually used_______
 def get_single(input, pred_len, seq_len, in_dim, out_dim):
+    device = "cuda:0"
     length = input.size()[1]
     start_pos = np.random.randint(0, length - pred_len - seq_len - 1)
     input_batched = input[:, start_pos:start_pos + seq_len, :]  # slice the used input
@@ -23,7 +24,7 @@ def get_single(input, pred_len, seq_len, in_dim, out_dim):
 
     target_wo_actions = target[:, :, in_dim - out_dim:]
 
-    return input_batched, target_wo_actions
+    return input_batched.to(device=device, copy=True), target_wo_actions.to(device=device, copy=True)
 
 def getMinibatch_linear(input, fLen=10, iLen=96, T=13, Out_num=9, inf=False):
     length = input.size()[1]
