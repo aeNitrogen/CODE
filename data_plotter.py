@@ -39,17 +39,13 @@ def plot_diff_all(pred, target):
 def log_pred_plots(pred, target):
     pred_num = pred.size(1)
     dict = {}
-    cols = []
     for i in range(pred_num):
         plt.figure(dpi=1200)
         plt.plot(pred[:, i], label="prediction " + i.__str__())
         plt.plot(target[:, i], label="target " + i.__str__())
         plt.legend()
         dict.update({"prediction " + i.__str__(): wandb.Image(plt)})
+        plt.close()
         plt.clf()
 
-
-
-
     return dict
-
