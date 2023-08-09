@@ -11,6 +11,7 @@ def getMinibatch(input, fLen=96, iLen=96, T=13, Out_num=9):
     target = input[:, start_pos + iLen:start_pos + iLen + fLen, :]
     return input_batched, target[:, :, T - Out_num:], target[:, :, :T - Out_num]
 
+
 # _______actually used_______
 def get_single(input, pred_len, seq_len, in_dim, out_dim):
     device = "cuda:0"
@@ -23,6 +24,9 @@ def get_single(input, pred_len, seq_len, in_dim, out_dim):
     input_batched = torch.cat((input_batched, start_token), 1)
 
     target_wo_actions = target[:, :, in_dim - out_dim:]
+
+    assert input_batched.size(1) == seq_len + pred_len, "input size wrong"
+    assert target_wo_actions.size(1) == pred_len, "target size wrong"
 
     return input_batched.to(device=device, copy=True), target_wo_actions.to(device=device, copy=True)
 
@@ -38,6 +42,9 @@ def get_single_pred(input, pred_len, seq_len, in_dim, out_dim):
     input_batched = torch.cat((input_batched, start_token), 1)
 
     target_wo_actions = target[:, :, in_dim - out_dim:]
+
+    assert input_batched.size(1) == seq_len + pred_len, "input size wrong"
+    assert target_wo_actions.size(1) == pred_len, "target size wrong"
 
     return input_batched.to(device=device, copy=True), target_wo_actions.to(device=device, copy=True)
 
@@ -113,3 +120,22 @@ def optimize(optimizer, model, epochs, train_input, test_input, pred_len, seq_le
         print("final test loss", loss.item().__str__())
 
     return loss_array, pred[0, :, :], target[0, :, :]
+
+
+def split_prediction_single(model, x, batch_size):
+    assert x.size(0) % batch_size == 0, "please choose a batch size that is a divisor of the total batch number"
+    y = model.forward(x[:batch_size, :, :])
+    for i in range((x.size(0) // batch_size) - 1):
+        j = i + 1
+        y = torch.cat((y, model.forward(x[batch_size * j: batch_size * (j + 1), :, :])))
+    return y
+
+
+def split_prediction_autoformer(model, x, batch_size):
+    assert x.size(0) % batch_size == 0, "please choose a batch size that is a divisor of the total batch number"
+    y = model.forward(x[:batch_size, :, :])
+    zeros = torch.zeros_like(x)
+    for i in range((x.size(0) // batch_size) - 1):
+        j = i + 1
+        y = torch.cat((y, model.forward(x[batch_size * j: batch_size * (j + 1), :, :], None, zeros, None)))
+    return y
