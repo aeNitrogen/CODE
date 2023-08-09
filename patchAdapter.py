@@ -25,6 +25,8 @@ def translate_dict_actions(config: dict, data_dim):
         kernel_size=config["kernel_size"],  # decomposition-kernel
         individual=config["individual"],  # individual head; True 1 False 0
 
+        freq=config["frequency"],
+
         # Formers
         embed_type=0,
         # 0: default 1: value embedding + temporal embedding + positional embedding 2: value embedding + temporal
