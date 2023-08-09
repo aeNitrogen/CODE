@@ -27,7 +27,7 @@ class HyperparamOpt_nonIterative(experiment.AbstractExperiment):
 class HyperparamOpt(experiment.AbstractIterativeExperiment):
     def __init__(self):
         self.iterator = None
-        self.h3 = 0
+
     def save_state(self, cw_config: dict, rep: int, n: int) -> None:
         pass
 
@@ -40,20 +40,9 @@ class HyperparamOpt(experiment.AbstractIterativeExperiment):
         print("DEBUG: Experiment initialization completed")
 
     def finalize(self, surrender: ExperimentSurrender = None, crash: bool = False):
-        # self.iterator.finalize()
-        # TODO: log prediction for visualization
         pass
 
     def iterate(self, cw_config: dict, rep: int, n: int) -> dict:
-        if False:
-            self.h3 %= 300
-
-            if self.h3 == 0:
-                print("torch.cuda.memory_allocated: %fGB" % (torch.cuda.memory_allocated(0) / 1024 / 1024 / 1024))
-                print("torch.cuda.memory_reserved: %fGB" % (torch.cuda.memory_reserved(0) / 1024 / 1024 / 1024))
-                print("torch.cuda.max_memory_reserved: %fGB" % (torch.cuda.max_memory_reserved(0) / 1024 / 1024 / 1024))
-
-            self.h3 += 1
 
         with torch.device("cuda:0"):
             return self.iterator.iterate()
