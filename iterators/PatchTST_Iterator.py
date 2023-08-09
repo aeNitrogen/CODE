@@ -7,13 +7,11 @@ def optimize(model, optimizer, data, batch_size, data_dim, out_dim, criterion, p
 
     def split_prediction_single():
 
-        print("split start")
         assert x.size(0) % batch_size == 0, "please choose a batch size that is a divisor of the total batch number"
         for i in range((x.size(0) // batch_size)):
             j = i
 
             def closure():
-
                 out = model.forward(x[batch_size * j: batch_size * (j + 1), :, :])
                 out = out[:, :, data_dim - out_dim:]
                 y_cut = y[batch_size * j: batch_size * (j + 1), :, :]
@@ -21,6 +19,5 @@ def optimize(model, optimizer, data, batch_size, data_dim, out_dim, criterion, p
                 loss.backward
                 return loss
             optimizer.step(closure)
-        print("split end")
 
     split_prediction_single()
