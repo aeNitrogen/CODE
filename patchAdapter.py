@@ -1,6 +1,7 @@
 from argparse import Namespace
 import torch.cuda
 import models.PatchTST
+import models.Autoformer
 
 
 def translate_dict_actions(config: dict, data_dim):
@@ -55,4 +56,8 @@ def translate_dict_actions(config: dict, data_dim):
 
 def patchtst(config: dict):
     model = models.PatchTST.Model(config)
+    return model
+
+def autoformer(config: dict):
+    model = models.Autoformer.Model(config)
     return model
