@@ -133,8 +133,10 @@ def split_prediction_single(model, x, batch_size):
 
 def split_prediction_autoformer(model, x, batch_size):
     assert x.size(0) % batch_size == 0, "please choose a batch size that is a divisor of the total batch number"
-    y = model.forward(x[:batch_size, :, :])
-    zeros = torch.zeros_like(x)
+    zeros = torch.zeros_like(x[0:batch_size, :, :])
+
+    y = model.forward(x[:batch_size, :, :], None, zeros, None)
+
     for i in range((x.size(0) // batch_size) - 1):
         j = i + 1
         y = torch.cat((y, model.forward(x[batch_size * j: batch_size * (j + 1), :, :], None, zeros, None)))
