@@ -28,7 +28,7 @@ def translate_dict_actions(config: dict, data_dim):
         freq=config["frequency"],
 
         # Formers
-        embed_type=0,
+        embed_type=config["embed_type"],
         # 0: default 1: value embedding + temporal embedding + positional embedding 2: value embedding + temporal
         # embedding 3: value embedding + positional embedding 4: value embedding
         enc_in=data_dim,  # enc input data dimension (for embedding)
@@ -59,6 +59,7 @@ def translate_dict_actions(config: dict, data_dim):
 def patchtst(config: dict):
     model = models.PatchTST.Model(config)
     return model
+
 
 def autoformer(config: dict):
     model = models.Autoformer.Model(config)
