@@ -1,7 +1,7 @@
 ---
 # Slurm config bwuni gpu
 name: "SLURM"   # MUST BE "SLURM"
-partition: "gpu_8"  # "single" for cpu, "gpu_4" or gpu_8" for gpu, "gpu_4_a100
+partition: "gpu_4_h100"  # "single" for cpu, "gpu_4" or gpu_8" for gpu, "gpu_4_a100
 job-name: "Patch_optim" # this will be the experiment's name in slurm
 num_parallel_jobs: 1  # max number of jobs executed in parallel
 ntasks: 1   #  leave that like it is
@@ -58,7 +58,7 @@ params:
   embed_type: 0 # 0: default 1: value embedding + temporal embedding + positional embedding 2: value embedding + temporal embedding 3: value embedding + positional embedding 4: value embedding
   # input_dim: # depends on data, done in code
   # output_size: 9 # depends on data and task # moved cause of actions
-  d_model: 2048
+  d_model: 4096
   #values: [ 256, 512, 1024, 2048, 4096, 8192 ]
   n_heads: 4
   encoder_layers: 2
@@ -71,6 +71,7 @@ params:
   embed: "timeF" # options [timeF, fixed, learned]
   activation: "gelu" # options "relu", "gelu"
   output_attention: False
+  frequency: "t" # used for temporal encoding
 
 wandb_sweep:
   # program: training_iterator.py
@@ -84,8 +85,6 @@ wandb_sweep:
     learning_rate:
       min: 0.0001
       max: 0.1
-    d_model:
-      values: [1024, 2048]
     overlap:
       min: 0
       max: 50
@@ -113,7 +112,7 @@ wandb_sweep:
     encoder_layers:
       values: [1, 2, 4]
     d_fcn:
-      values: [256, 512, 2048]
+      values: [256, 512, 2048, 4096]
     n_heads:
       values: [4, 8, 16]
 

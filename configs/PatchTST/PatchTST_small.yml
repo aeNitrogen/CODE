@@ -1,13 +1,13 @@
 ---
 # Slurm config bwuni gpu
 name: "SLURM"   # MUST BE "SLURM"
-partition: "gpu_4_a100"  # "single" for cpu, "gpu_4" or gpu_8" for gpu
+partition: "gpu_4"  # "single" for cpu, "gpu_4" or gpu_8" for gpu, "gpu_4_a100
 job-name: "Patch_optim" # this will be the experiment's name in slurm
-num_parallel_jobs: 30  # max number of jobs executed in parallel
+num_parallel_jobs: 1  # max number of jobs executed in parallel
 ntasks: 1   #  leave that like it is
-cpus-per-task: 4   # there are 5 cores for each GPU on the gpu_8 queue and 10 per GPU on the gpu_4 queue. Never use 5! don't ask why!
-mem-per-cpu: 2250 # in mb
-time: 600   # in minutes
+cpus-per-task: 8   # there are 5 cores for each GPU on the gpu_8 queue and 10 per GPU on the gpu_4 queue. Never use 5! don't ask why!
+mem-per-cpu: 8000 # in mb
+time: 720   # in minutes
 sbatch_args:   # gpus need to be explicitly requested using this
   gres: "gpu:1" #and this (specifies number of gpus requested)
 
@@ -18,13 +18,13 @@ name: "Patch_bayes"
 
 run_cap: 40
 
-path: "/home/kit/anthropomatik/qh0834/Alr/Thesis/Results/tests/default"
-iterations: 1000
+path: "/home/kit/anthropomatik/qh0834/Alr/Thesis/Results/tests/PatchTST"
+iterations: 1500
 repetitions: 1
 reps_per_job: 1
 reps_in_parallel: 1
 params:
-  iterations: 1000 # must be same as iterations above
+  iterations: 1500 # must be same as iterations above
   seed: 8055
   architecture: "PatchTST"
   # learning_rate: 0.05
@@ -71,6 +71,7 @@ params:
   embed: "timeF" # options [timeF, fixed, learned]
   activation: "gelu" # options "relu", "gelu"
   output_attention: False
+  frequency: "t" # used for temporal encoding
 
 wandb_sweep:
   # program: training_iterator.py
@@ -82,10 +83,10 @@ wandb_sweep:
   run_cap: 5000
   parameters:
     learning_rate:
-      min: 0.001
+      min: 0.0001
       max: 0.1
     d_model:
-      values: [256, 512, 1024, 2048]
+      values: [128, 256]
     overlap:
       min: 0
       max: 50
@@ -104,13 +105,21 @@ wandb_sweep:
     decomposition:
       values: [1, 0]
     kernel_size:
-      min: 10
-      max: 50
+      values: [3,7,15,33,55]
     individual:
       values: [1, 0]
+    dropout:
+      min: 0.0
+      max: 0.5
+    encoder_layers:
+      values: [1, 2, 4]
+    d_fcn:
+      values: [256, 512, 2048]
+    n_heads:
+      values: [4, 8, 16]
 
 wandb:
   project: "battery"
   sweep_id: "new"
-  group: "first iteration"
+  group: "second iteration"
   hp_combinations_per_agent: 5000

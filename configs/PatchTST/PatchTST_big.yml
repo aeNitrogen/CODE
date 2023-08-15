@@ -71,6 +71,7 @@ params:
   embed: "timeF" # options [timeF, fixed, learned]
   activation: "gelu" # options "relu", "gelu"
   output_attention: False
+  frequency: "t" # used for temporal encoding
 
 wandb_sweep:
   # program: training_iterator.py
