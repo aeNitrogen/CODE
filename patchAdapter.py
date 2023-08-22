@@ -2,9 +2,11 @@ from argparse import Namespace
 import torch.cuda
 import models.PatchTST
 import models.Autoformer
+import models.Transformer
+import models.Informer
 
 
-def translate_dict_actions(config: dict, data_dim):
+def translate_dict_actions(config: dict, data_dim, architecture=""):
     args = Namespace(
 
         # Forecasting task
@@ -32,7 +34,7 @@ def translate_dict_actions(config: dict, data_dim):
         # 0: default 1: value embedding + temporal embedding + positional embedding 2: value embedding + temporal
         # embedding 3: value embedding + positional embedding 4: value embedding
         enc_in=data_dim,  # enc input data dimension (for embedding)
-        dec_in=data_dim,
+        dec_in=data_dim,  # PLEASE DO CHANGE BACK OTHERWISE THINGS WONT WORK was =data_dim
         c_out=config["output_size"],  # output size
         d_model=config["d_model"],  # model dimension
         n_heads=config["n_heads"],  # number of heads
@@ -53,6 +55,10 @@ def translate_dict_actions(config: dict, data_dim):
         use_gpu=True if torch.cuda.is_available() else False,
     )
 
+    if architecture == "Transformer" or architecture == "Informer":
+        args.__setattr__("dec_in", 4)
+        print("autoformer")
+
     return args
 
 
@@ -63,4 +69,13 @@ def patchtst(config: dict):
 
 def autoformer(config: dict):
     model = models.Autoformer.Model(config)
+    return model
+
+
+def transformer(config: dict):
+    model = models.Transformer.Model(config)
+    return model
+
+def informer(config: dict):
+    model = models.Informer.Model(config)
     return model
