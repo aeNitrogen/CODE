@@ -1,7 +1,7 @@
 ---
 # Slurm config bwuni gpu
 name: "SLURM"   # MUST BE "SLURM"
-partition: "gpu_8"  # "single" for cpu, "gpu_4" or gpu_8" for gpu, "gpu_4_a100
+partition: "gpu_4_a100"  # "single" for cpu, "gpu_4" or gpu_8" for gpu, "gpu_4_a100
 job-name: "Patch_optim" # this will be the experiment's name in slurm
 num_parallel_jobs: 1  # max number of jobs executed in parallel
 ntasks: 1   #  leave that like it is
@@ -14,17 +14,17 @@ sbatch_args:   # gpus need to be explicitly requested using this
 ---
 name: "DEFAULT"
 ---
-name: "Patch_bayes"
+name: "Patch_bayes_2"
 
-run_cap: 40
+run_cap: 500
 
 path: "/home/kit/anthropomatik/qh0834/Alr/Thesis/Results/tests/PatchTST"
-iterations: 1500
+iterations: 1000
 repetitions: 1
 reps_per_job: 1
 reps_in_parallel: 1
 params:
-  iterations: 1500 # must be same as iterations above
+  iterations: 1000 # must be same as iterations above
   seed: 8055
   architecture: "PatchTST"
   # learning_rate: 0.05
@@ -37,7 +37,11 @@ params:
   #  values: 20 [0, 5, 20, 50]
   prediction_length: 500
   lookback_window: 150
-  output_size: 9
+  output_size: 13
+
+  # _______News_______
+  gpu_batch_size: 100
+  real_output_size: 9
 
   # _______PatchTST_______
 
@@ -55,7 +59,7 @@ params:
 
   # _______Formers_______
 
-  embed_type: 0 # 0: default 1: value embedding + temporal embedding + positional embedding 2: value embedding + temporal embedding 3: value embedding + positional embedding 4: value embedding
+  embed_type: 3 # 0: default 1: value embedding + temporal embedding + positional embedding 2: value embedding + temporal embedding 3: value embedding + positional embedding 4: value embedding
   # input_dim: # depends on data, done in code
   # output_size: 9 # depends on data and task # moved cause of actions
   d_model: 2048
@@ -83,19 +87,17 @@ wandb_sweep:
   run_cap: 5000
   parameters:
     learning_rate:
-      min: 0.0001
-      max: 0.1
+      min: 0.00001
+      max: 0.001
     d_model:
-      values: [1024, 2048]
+      values: [512, 1024]
     overlap:
       min: 0
       max: 50
     fc_dropout:
-      min: 0.0
-      max: 0.5
+      values: [0.0, 0.5, 0.25, 0.75]
     head_dropout:
-      min: 0.0
-      max: 0.5
+      values: [0.0, 0.5, 0.25, 0.75]
     revin:
       values: [1, 0]
     affine:
@@ -109,12 +111,11 @@ wandb_sweep:
     individual:
       values: [1, 0]
     dropout:
-      min: 0.0
-      max: 0.5
+      values: [0.0, 0.5, 0.25, 0.75]
     encoder_layers:
       values: [1, 2, 4]
     d_fcn:
-      values: [256, 512, 2048]
+      values: [64, 128, 256, 512]
     n_heads:
       values: [4, 8, 16]
 
