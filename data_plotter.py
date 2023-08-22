@@ -111,7 +111,7 @@ def get_error_over_time(out, y, out_dim):
     e_o_t = out - y
     diff = torch.abs(e_o_t)
     e_o_t = torch.sum(diff, dim=2) / out_dim
-    e_o_t_max, e_o_t_min = cutup(e_o_t)
+    e_o_t_min, e_o_t_max = cutup(e_o_t)
     e_o_t = torch.sum(e_o_t, dim=0) / e_o_t.size(0)
 
     update_dict = loss_over_time(smoof(e_o_t), smoof(e_o_t_min), smoof(e_o_t_max))
