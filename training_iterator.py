@@ -10,6 +10,7 @@ import utils_ba
 import torch.optim
 import iterators.PatchTST_Iterator
 import iterators.Autoformer_Iterator
+import iterators.Transformer_Iterator
 
 import data_plotter
 
@@ -29,7 +30,7 @@ class training_iterator:
 
         self.train, self.val, _, _ = data_loader.load('SinData.pkl')  # change when running final experiments
         self.data_dim = self.train.size(2)
-        config_translated = patchAdapter.translate_dict_actions(config, self.data_dim)
+        config_translated = patchAdapter.translate_dict_actions(config, self.data_dim, self.architecture)
 
         print("DEBUG: config translated")
         assert config["kernel_size"] % 2 == 1, "please choose odd kernel_size"
@@ -42,15 +43,17 @@ class training_iterator:
         self.iter = 0
         self.model = None
 
-        if self.architecture == "transformer":
-            print("TODO")
-            # self.model = transformer.Transformer
+        if self.architecture == "Transformer":
+            self.model = patchAdapter.transformer(config_translated)
 
         elif self.architecture == "PatchTST":
             self.model = patchAdapter.patchtst(config_translated)
 
         elif self.architecture == "Autoformer":
             self.model = patchAdapter.autoformer(config_translated)
+
+        elif self.architecture == "Informer":
+            self.model = patchAdapter.informer(config_translated)
 
         else:
             assert False, "please specify a supported architecture"
@@ -71,6 +74,10 @@ class training_iterator:
 
         final = False
 
+        self.iter += 1
+        if self.iter == self.iterations:
+            final = True
+
         if self.architecture == "PatchTST":
 
             self.model.train()
@@ -78,18 +85,26 @@ class training_iterator:
             iterators.PatchTST_Iterator.optimize(self.model, self.optimizer, self.train, batch_size, self.data_dim,
                                                  self.out_dim, criterion, self.pred_len, self.seq_len)
 
-            self.iter += 1
-            if self.iter == self.iterations:
-                final = True
+            self.model.eval()
+
+            with torch.no_grad():
+                ret_dict = iterators.PatchTST_Iterator.predict(self.model, self.val, self.train, batch_size, self.data_dim,
+                                                               self.out_dim, criterion, mae_crit, self.pred_len,
+                                                               self.seq_len, final=final)
+
+        elif self.architecture == "Transformer" or self.architecture == "Informer":
+
+            self.model.train()
+
+            iterators.Transformer_Iterator.optimize(self.model, self.optimizer, self.train, batch_size, self.data_dim,
+                                                    self.out_dim, criterion, self.pred_len, self.seq_len)
 
             self.model.eval()
 
             with torch.no_grad():
-                ret_dict = iterators.PatchTST_Iterator.predict(self.model, self.train, batch_size, self.data_dim,
-                                                               self.out_dim, criterion, mae_crit, self.pred_len,
-                                                               self.seq_len, final=final)
-
-
+                ret_dict = iterators.Transformer_Iterator.predict(self.model, self.val, self.train, batch_size, self.data_dim,
+                                                                  self.out_dim, criterion, mae_crit, self.pred_len,
+                                                                  self.seq_len, final=final)
 
         elif self.architecture == "Autoformer":
 
@@ -99,29 +114,11 @@ class training_iterator:
                                                    self.out_dim, criterion, self.pred_len, self.seq_len)
 
             self.model.eval()
+
             with torch.no_grad():
-                x, y = utils_ba.get_single(self.val, self.pred_len, self.seq_len, self.data_dim, self.out_dim)
-
-                # out = self.model.forward(x)
-                out = utils_ba.split_prediction_autoformer(self.model, x, batch_size)
-
-                out = out[:, :, self.data_dim - self.out_dim:]
-                loss = criterion(out, y)
-
-                rmse = torch.sqrt(loss)
-
-                mae = mae_crit(out, y)
-
-                rmae = torch.sqrt(mae)
-                ret_dict = {
-                    'validation_loss': loss,
-                    'rmse': rmse,
-                    'mae': mae,
-                    'rmae': rmae
-                }
-            self.iter += 1
-            if self.iter == self.iterations:
-                ret_dict.update(self.finalize())
+                ret_dict = iterators.Autoformer_Iterator.predict(self.model, self.val, self.train, batch_size, self.data_dim,
+                                                                 self.out_dim, criterion, mae_crit, self.pred_len,
+                                                                 self.seq_len, final=final)
 
         return ret_dict
 
