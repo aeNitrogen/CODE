@@ -141,3 +141,21 @@ def split_prediction_autoformer(model, x, batch_size):
         j = i + 1
         y = torch.cat((y, model.forward(x[batch_size * j: batch_size * (j + 1), :, :], None, zeros, None)))
     return y
+
+def get_transformer_pred(input, pred_len, seq_len, in_dim, out_dim):
+    device = "cuda:0"
+    length = input.size()[1]
+    start_pos = 0
+    input_batched = input[:, start_pos:start_pos + seq_len, :]  # slice the used input
+    target = input[:, start_pos + seq_len:start_pos + seq_len + pred_len, :]  # whole target, including actions
+    start_token = target.clone()
+    start_token[:, :, in_dim - out_dim:] = torch.zeros_like(target[:, :, in_dim - out_dim:])
+    input_batched = torch.cat((input_batched, start_token), 1)
+
+    target_wo_actions = target[:, :, in_dim - out_dim:]
+
+    assert input_batched.size(1) == seq_len + pred_len, "input size wrong"
+    assert target_wo_actions.size(1) == pred_len, "target size wrong"
+
+    return input_batched.to(device=device, copy=True), target_wo_actions.to(device=device, copy=True)
+
