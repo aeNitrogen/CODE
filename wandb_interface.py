@@ -3,7 +3,7 @@ import wandb
 
 def log(data, seq_len, pred_len, opt, epochs, architecture, lr=0.2, info="", hidden_dec=-1, hidden_enc=-1, d_model=-1,
         dropout=0.0, overlap=-1, n_heads=-1, pred=None, target=None):
-    WANDB_API_KEY = "0542663e58cbd656b41998c3db626e17e4276f16"
+    WANDB_API_KEY = None
     # WANDB_NAME = "run"
     wandb.login(key=WANDB_API_KEY)
     # start a new wandb run to track this script
