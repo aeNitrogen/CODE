@@ -1,30 +1,30 @@
 ---
 # Slurm config bwuni gpu
 name: "SLURM"   # MUST BE "SLURM"
-partition: "dev_gpu_4"  # "single" for cpu, "gpu_4" or gpu_8" for gpu, "gpu_4_a100
-job-name: "Auto_test" # this will be the experiment's name in slurm
+partition: "gpu_4_a100"  # "single" for cpu, "gpu_4" or gpu_8" for gpu, "gpu_4_a100
+job-name: "Auto_sma" # this will be the experiment's name in slurm
 num_parallel_jobs: 1  # max number of jobs executed in parallel
 ntasks: 1   #  leave that like it is
 cpus-per-task: 8   # there are 5 cores for each GPU on the gpu_8 queue and 10 per GPU on the gpu_4 queue. Never use 5! don't ask why!
 mem-per-cpu: 8000 # in mb
-time: 30   # in minutes
+time: 720   # in minutes
 sbatch_args:   # gpus need to be explicitly requested using this
   gres: "gpu:1" #and this (specifies number of gpus requested)
 
 ---
 name: "DEFAULT"
 ---
-name: "Auto_test"
+name: "Auto_small"
 
 run_cap: 40
 
 path: "/home/kit/anthropomatik/qh0834/Alr/Thesis/Results/tests/PatchTST"
-iterations: 500
+iterations: 1000
 repetitions: 1
 reps_per_job: 1
 reps_in_parallel: 1
 params:
-  iterations: 500 # must be same as iterations above
+  iterations: 1000 # must be same as iterations above
   seed: 8055
   architecture: "Autoformer"
   # learning_rate: 0.05
@@ -33,11 +33,19 @@ params:
     #max: 0.2
 
   # cause of actions start token len has to be overlap + pred len
-  overlap: 20
+  overlap: 0
   #  values: 20 [0, 5, 20, 50]
-  prediction_length: 500
+  prediction_length: 750
   lookback_window: 150
   output_size: 13
+
+  # _______News_______
+  gpu_batch_size: 50
+  real_output_size: 9
+  dataset: "SinMixData.pkl"
+  #dataset: "SinData.pkl"
+  final: False
+  # factor: 1 is in patch translator
 
   # _______PatchTST_______
 
@@ -75,7 +83,7 @@ params:
 
 wandb_sweep:
   # program: training_iterator.py
-  name: "Patch_1"
+  name: "Auto_sm"
   metric:
     name: "validation_loss"
     goal: "minimize"
@@ -83,28 +91,24 @@ wandb_sweep:
   run_cap: 5000
   parameters:
     learning_rate:
-      min: 0.0001
+      min: 0.000001
       max: 0.1
     d_model:
-      values: [1024]
+      values: [512]
     overlap:
-      min: 0
-      max: 50
+      values: [0, 5, 10, 50]
     moving_average:
       values: [5, 21, 51, 101]
     dropout:
-      min: 0.0
-      max: 0.5
+      values: [0.0, 0.25, 0.5, 0.75]
     encoder_layers:
       values: [1, 2, 4]
     decoder_layers:
       values: [1, 2, 4]
     d_fcn:
-      values: [64, 128, 256, 512]
+      values: [256, 512, 1024, 2048]
     n_heads:
       values: [4, 8, 16]
-    output_attention:
-      values: [True, False]
     activation:
       values: ["gelu", "relu"]
     embed_type:

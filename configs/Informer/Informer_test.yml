@@ -19,12 +19,12 @@ name: "Informer test"
 run_cap: 40
 
 path: "/home/kit/anthropomatik/qh0834/Alr/Thesis/Results/tests/default"
-iterations: 1000
+iterations: 100
 repetitions: 1
 reps_per_job: 1
 reps_in_parallel: 1
 params:
-  iterations: 1000 # must be same as iterations above
+  iterations: 100 # must be same as iterations above
   seed: 8055
   architecture: "Informer"
   # learning_rate: 0.05
@@ -34,13 +34,17 @@ params:
 
   # cause of actions start token len has to be overlap + pred len
   #  values: 20 [0, 5, 20, 50]
-  prediction_length: 500
+  prediction_length: 750
   lookback_window: 150
   output_size: 9
 
   # _______News_______
   gpu_batch_size: 100
   real_output_size: 9
+  dataset: "SinMixData.pkl"
+  #dataset: "SinData.pkl"
+  final: False
+  # factor: 1 is in patch translator
 
   # _______PatchTST_______
 
@@ -56,7 +60,7 @@ params:
   kernel_size: 9
   learning_rate: 0.001
   n_heads: 16
-  overlap: 28
+  overlap: 0
   revin: 1
   subtract_last: 0
   patch_length: 16
@@ -88,9 +92,9 @@ wandb_sweep:
   run_cap: 5000
   parameters:
     d_model:
-      values: [2048, 4096]
+      values: [4096]
     d_fcn:
-      values: [1024, 2048]
+      values: [4096]
 
 wandb:
   project: "battery"

@@ -1,8 +1,8 @@
 ---
 # Slurm config bwuni gpu
 name: "SLURM"   # MUST BE "SLURM"
-partition: "gpu_8"  # "single" for cpu, "gpu_4" or gpu_8" for gpu
-job-name: "Patch_optim" # this will be the experiment's name in slurm
+partition: "gpu_4_a100"  # "single" for cpu, "gpu_4" or gpu_8" for gpu
+job-name: "Trans_small" # this will be the experiment's name in slurm
 num_parallel_jobs: 1  # max number of jobs executed in parallel
 ntasks: 1   #  leave that like it is
 cpus-per-task: 8   # there are 5 cores for each GPU on the gpu_8 queue and 10 per GPU on the gpu_4 queue. Never use 5! don't ask why!
@@ -14,7 +14,7 @@ sbatch_args:   # gpus need to be explicitly requested using this
 ---
 name: "DEFAULT"
 ---
-name: "Test_trans"
+name: "Trans_small"
 
 run_cap: 1 # doesnt do shit
 
@@ -41,6 +41,8 @@ params:
   # _______News_______
   gpu_batch_size: 100
   real_output_size: 9
+  dataset: "SinMixData.pkl"
+  final: False
   # factor: 1 is in patch translator
 
   # _______PatchTST_______
@@ -57,7 +59,7 @@ params:
   kernel_size: 3
   learning_rate: 0.06255643412713437
   n_heads: 16
-  overlap: 28
+  overlap: 0
   revin: 1
   subtract_last: 0
   patch_length: 16
@@ -81,7 +83,7 @@ params:
 
 wandb_sweep:
   # program: training_iterator.py
-  name: "Patch_1"
+  name: "Trans_small"
   metric:
     name: "validation_loss"
     goal: "minimize"
@@ -91,11 +93,11 @@ wandb_sweep:
     d_model:
       values: [ 512, 1024]
     dropout:
-      values: [ 0.0, 0.5, 0.25 ]
+      values: [0.0, 0.25, 0.5, 0.75]
     n_heads:
       values: [4, 8, 16]
     d_fcn:
-      values: [256, 512]
+      values: [128, 256, 512]
     activation:
       values: [ "gelu", "relu" ]
     encoder_layers:
@@ -103,8 +105,10 @@ wandb_sweep:
     decoder_layers:
       values: [ 1, 2, 4 ]
     learning_rate:
-      min: 0.0001
+      min: 0.00001
       max: 0.1
+    embed_type:
+      values: [ 3 , 4 ]
 
 wandb:
   project: "battery"

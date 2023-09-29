@@ -2,7 +2,7 @@ import torch
 import numpy as np
 
 
-def get_input(input, pred_len, seq_len, in_dim, out_dim, prediction=False, two_inputs=False):
+def get_input(input, pred_len, seq_len, in_dim, out_dim, prediction=False, two_inputs=False, lstm=False):
     """
     :param input:       input data
     :param pred_len:    prediction length
@@ -19,7 +19,12 @@ def get_input(input, pred_len, seq_len, in_dim, out_dim, prediction=False, two_i
     if prediction or length - pred_len - seq_len <= 1:
         start_pos = 0
     else:
-        start_pos = np.random.randint(0, length - pred_len - seq_len - 1)
+        # start_pos = np.random.randint(0, length - pred_len - seq_len - 1)
+        if pred_len == 750: # sin or sinmixdata
+            start_pos = 150 - seq_len
+        else: # maze or cheetah data
+            start_pos = 60 - seq_len
+
 
     input_batched = input[:, start_pos:start_pos + seq_len, :]  # slice the used input
     target = input[:, start_pos + seq_len:start_pos + seq_len + pred_len, :]  # whole target, including actions
@@ -29,7 +34,8 @@ def get_input(input, pred_len, seq_len, in_dim, out_dim, prediction=False, two_i
     target_wo_actions = target[:, :, in_dim - out_dim:]
 
     if two_inputs:
-        start_token = start_token[:, :, 0:-out_dim]
+        if not lstm:
+            start_token = start_token[:, :, 0:-out_dim]
         return input_batched.to(device=device, copy=True), start_token.to(device=device, copy=True),\
             target_wo_actions.to(device=device, copy=True)
     else:

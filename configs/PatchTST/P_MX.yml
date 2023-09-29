@@ -1,0 +1,132 @@
+---
+# Slurm config bwuni gpu
+name: "SLURM"   # MUST BE "SLURM"
+partition: "gpu_4_a100"  # "single" for cpu, "gpu_4" or gpu_8" for gpu, "gpu_4_a100
+job-name: "P_MX" # this will be the experiment's name in slurm
+num_parallel_jobs: 1  # max number of jobs executed in parallel
+ntasks: 1   #  leave that like it is
+cpus-per-task: 8   # there are 5 cores for each GPU on the gpu_8 queue and 10 per GPU on the gpu_4 queue. Never use 5! don't ask why!
+mem-per-cpu: 8000 # in mb
+time: 100   # in minutes
+sbatch_args:   # gpus need to be explicitly requested using this
+  gres: "gpu:1" #and this (specifies number of gpus requested)
+
+---
+name: "DEFAULT"
+---
+name: "PMX"
+
+run_cap: 5000
+
+path: "/home/kit/anthropomatik/qh0834/Alr/Thesis/Results/tests/PatchTST"
+iterations: 1000
+repetitions: 1
+reps_per_job: 1
+reps_in_parallel: 1
+params:
+  iterations: 1000 # must be same as iterations above
+  seed: 8055
+  architecture: "PatchTST"
+  # learning_rate: 0.05
+    #distribution: "q_log_uniform"
+    #min: 0.00001
+    #max: 0.2
+
+  # cause of actions start token len has to be overlap + pred len
+  overlap: 0
+  #  values: 20 [0, 5, 20, 50]
+  prediction_length: 750
+  lookback_window: 150
+  output_size: 13
+
+  # _______News_______
+  gpu_batch_size: 1000
+  real_output_size: 9
+  dataset: "SinMixData.pkl"
+  #dataset: "SinMixData.pkl"
+  final: False
+  # factor: 1 is in patch translator
+
+  # _______PatchTST_______
+
+  fc_dropout: 0.05
+  head_dropout: 0.0
+  patch_length: 16
+  stride: 8
+  padding_patch: "end"
+  revin: 1
+  affine: 0
+  subtract_last: 0
+  decomposition: 0
+  kernel_size: 25
+  individual: 0 # individual head; True 1 False 0
+
+  # _______Formers_______
+
+  embed_type: 3 # 0: default 1: value embedding + temporal embedding + positional embedding 2: value embedding + temporal embedding 3: value embedding + positional embedding 4: value embedding
+  # input_dim: # depends on data, done in code
+  # output_size: 9 # depends on data and task # moved cause of actions
+  d_model: 2048
+  #values: [ 256, 512, 1024, 2048, 4096, 8192 ]
+  n_heads: 4
+  encoder_layers: 2
+  decoder_layers: 1
+  d_fcn: 2048 # [512, 1024, 2048, 4096]?
+  moving_average: 25 # try 5, 50, 100
+  distilling: True # attention distilling in encoder
+  dropout: 0.3
+  #values: [ 0, 0.1, 0.3, 0.5 ]
+  embed: "timeF" # options [timeF, fixed, learned]
+  activation: "gelu" # options "relu", "gelu"
+  output_attention: False
+  frequency: "t" # used for temporal encoding
+
+wandb_sweep:
+  # program: training_iterator.py
+  name: "PMX"
+  metric:
+    name: "validation_loss"
+    goal: "minimize"
+  method: "grid"
+  run_cap: 5000
+  parameters:
+    learning_rate:
+      values: [0.0006] # final 0.0006
+    d_model:
+      values: [128] # final
+    fc_dropout:
+      values: [0.0] # finaö, no difference
+    head_dropout:
+      values: [0.0] # final
+    revin:
+      values: [False] # final
+    affine:
+      values: [False] # doesnt matter without revin
+    subtract_last:
+      values: [False] # does not matter (maybe test again after lr) fin
+    decomposition:
+      values: [False] # final
+    kernel_size:
+      values: [11] # does not seem to matter, final
+    individual:
+      values: [True] # final
+    dropout:
+      values: [0.25] # final
+    encoder_layers:
+      values: [1] # final
+    d_fcn:
+      values: [128] # final
+    n_heads:
+      values: [1] # final
+    final:
+      values: [True]
+    seed:
+      values: [ 1,2,3 ]
+    lookback_window:
+      values: [ 150, 100, 50]
+
+wandb:
+  project: "battery"
+  sweep_id: "new"
+  group: "second iteration"
+  hp_combinations_per_agent: 5000

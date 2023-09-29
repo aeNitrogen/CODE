@@ -4,6 +4,12 @@ import models.PatchTST
 import models.Autoformer
 import models.Transformer
 import models.Informer
+import models.NuLinear
+import models.NLinear
+import models.DLinear
+import models.NuLin
+import models.lstm
+import models.Informer_plus
 
 
 def translate_dict_actions(config: dict, data_dim, architecture=""):
@@ -13,6 +19,7 @@ def translate_dict_actions(config: dict, data_dim, architecture=""):
         seq_len=config["lookback_window"] + config["prediction_length"],  # input sequence length
         label_len=config["overlap"] + config["prediction_length"],  # start token length
         pred_len=config["prediction_length"],
+        enc_len=config["lookback_window"],                          # encoder sequence length
 
         # PatchTST
         fc_dropout=config["fc_dropout"],  # fully connected dropout
@@ -55,9 +62,22 @@ def translate_dict_actions(config: dict, data_dim, architecture=""):
         use_gpu=True if torch.cuda.is_available() else False,
     )
 
-    if architecture == "Transformer" or architecture == "Informer":
-        args.__setattr__("dec_in", 4)
-        print("autoformer")
+    if architecture in ["Transformer", "Informer", "Informer+"]:
+        args.__setattr__("dec_in", data_dim - config["output_size"])  # was 4
+        print("DEBUG: dec_in = " + (data_dim - config["output_size"]).__str__())
+
+    if architecture in ["NuLin", "NuLinear"]:
+        args.__setattr__("seq_len", config["lookback_window"])
+
+    if architecture in ["NuLin"]:
+        if config["revin"] == 1:
+            args.__setattr__("action_size", 4)
+            args.__setattr__("enc_in", config["output_size"]) # 9
+            args.__setattr__("dec_in", data_dim - config["output_size"]) # 4
+        else:
+            args.__setattr__("action_size", config["output_size"])
+            args.__setattr__("dec_in", config["output_size"])
+            args.__setattr__("enc_in", data_dim - config["output_size"])
 
     return args
 
@@ -76,6 +96,35 @@ def transformer(config: dict):
     model = models.Transformer.Model(config)
     return model
 
+
 def informer(config: dict):
     model = models.Informer.Model(config)
+    return model
+
+
+def nlinear(config: dict):
+    model = models.NLinear.Model(config)
+    return model
+
+
+def dlinear(config: dict):
+    model = models.DLinear.Model(config)
+    return model
+
+
+def nulinear(config: dict):
+    model = models.NuLinear.Model(config)
+    return model
+
+
+def nulin(config: dict):
+    model = models.NuLin.Model(config)
+    return model
+
+def lstm(config: dict):
+    model = models.lstm.Model(config)
+    return model
+
+def informer_plus(config: dict):
+    model = models.Informer_plus.Model(config)
     return model

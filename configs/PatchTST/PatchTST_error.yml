@@ -2,7 +2,7 @@
 # Slurm config bwuni gpu
 name: "SLURM"   # MUST BE "SLURM"
 partition: "dev_gpu_4_a100"  # "single" for cpu, "gpu_4" or gpu_8" for gpu
-job-name: "Patch_optim" # this will be the experiment's name in slurm
+job-name: "Patch_test" # this will be the experiment's name in slurm
 num_parallel_jobs: 1  # max number of jobs executed in parallel
 ntasks: 1   #  leave that like it is
 cpus-per-task: 8   # there are 5 cores for each GPU on the gpu_8 queue and 10 per GPU on the gpu_4 queue. Never use 5! don't ask why!
@@ -14,17 +14,17 @@ sbatch_args:   # gpus need to be explicitly requested using this
 ---
 name: "DEFAULT"
 ---
-name: "Patch_bayes"
+name: "Test_patch"
 
 run_cap: 40
 
 path: "/home/kit/anthropomatik/qh0834/Alr/Thesis/Results/tests/default"
-iterations: 1000
+iterations: 100
 repetitions: 1
 reps_per_job: 1
 reps_in_parallel: 1
 params:
-  iterations: 1000 # must be same as iterations above
+  iterations: 100 # must be same as iterations above
   seed: 8055
   architecture: "PatchTST"
   # learning_rate: 0.05
@@ -41,12 +41,16 @@ params:
   # _______News_______
   gpu_batch_size: 100
   real_output_size: 9
+  dataset: "SinMixData.pkl"
+  #dataset: "SinData.pkl"
+  final: False
+  # factor: 1 is in patch translator
 
   # _______PatchTST_______
 
   affine: 0
   d_fcn: 256
-  d_model: 512
+  d_model: 256
   decomposition: 1
   dropout: 0.25
   encoder_layers: 4
@@ -54,10 +58,10 @@ params:
   head_dropout: 0.0
   individual: 1
   kernel_size: 23
-  learning_rate: 0.06255643412713437
+  learning_rate: 0.001
   n_heads: 16
-  overlap: 28
-  revin: 1
+  overlap: 0
+  revin: 0
   subtract_last: 0
   patch_length: 16
   stride: 8
@@ -80,15 +84,19 @@ params:
 
 wandb_sweep:
   # program: training_iterator.py
-  name: "Patch_1"
+  name: "Patch_test"
   metric:
     name: "validation_loss"
     goal: "minimize"
   method: "grid"
-  run_cap: 1
+  run_cap: 2
   parameters:
-    learning_rate:
-      values: [0.0001]
+    d_model:
+      values: [ 64 ]
+    d_fcn:
+      values: [ 256 ]
+    gpu_batch_size:
+      values: [ 100 ]
 
 wandb:
   project: "battery"

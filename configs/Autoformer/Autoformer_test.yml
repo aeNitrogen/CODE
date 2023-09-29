@@ -19,12 +19,12 @@ name: "Autoformer test"
 run_cap: 40
 
 path: "/home/kit/anthropomatik/qh0834/Alr/Thesis/Results/tests/default"
-iterations: 1000
+iterations: 100
 repetitions: 1
 reps_per_job: 1
 reps_in_parallel: 1
 params:
-  iterations: 1000 # must be same as iterations above
+  iterations: 100 # must be same as iterations above
   seed: 8055
   architecture: "Autoformer"
   # learning_rate: 0.05
@@ -34,13 +34,17 @@ params:
 
   # cause of actions start token len has to be overlap + pred len
   #  values: 20 [0, 5, 20, 50]
-  prediction_length: 500
+  prediction_length: 750
   lookback_window: 150
   output_size: 13
 
   # _______News_______
   gpu_batch_size: 100
   real_output_size: 9
+  dataset: "SinMixData.pkl"
+  #dataset: "SinData.pkl"
+  final: False
+  # factor: 1 is in patch translator
 
   # _______PatchTST_______
 
@@ -49,14 +53,14 @@ params:
   d_model: 512
   decomposition: 1
   dropout: 0.4484026335191176
-  encoder_layers: 1
+  encoder_layers: 4
   fc_dropout: 0.3023419908210689
   head_dropout: 0.1211843940807874
   individual: 1
   kernel_size: 9
   learning_rate: 0.001
   n_heads: 16
-  overlap: 28
+  overlap: 0
   revin: 1
   subtract_last: 0
   patch_length: 16
@@ -69,7 +73,7 @@ params:
   # input_dim: # depends on data, done in code
   # output_size: 9 # depends on data and task # moved cause of actions
   #values: [ 256, 512, 1024, 2048, 4096, 8192 ]
-  decoder_layers: 1
+  decoder_layers: 4
   moving_average: 25 # try 5, 50, 100
   distilling: True # attention distilling in encoder
   #values: [ 0, 0.1, 0.3, 0.5 ]
@@ -80,17 +84,19 @@ params:
 
 wandb_sweep:
   # program: training_iterator.py
-  name: "Patch_1"
+  name: "Auto_t"
   metric:
     name: "validation_loss"
     goal: "minimize"
   method: "grid"
-  run_cap: 5000
+  run_cap: 1
   parameters:
     d_model:
-      values: [2048]
+      values: [512]
     d_fcn:
-      values: [1024]
+      values: [2048]
+    gpu_batch_size:
+      values: [ 50]
 
 wandb:
   project: "battery"
