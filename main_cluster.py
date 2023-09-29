@@ -51,7 +51,7 @@ class HyperparamOpt(experiment.AbstractIterativeExperiment):
 if __name__ == "__main__":
     print("start_main")
 
-    # WANDB_API_KEY = "0542663e58cbd656b41998c3db626e17e4276f16"
+    # WANDB_API_KEY = None
     # wandb.login(key=WANDB_API_KEY)  # , anonymous="never", )
 
     cw = cluster_work.ClusterWork(wrap_experiment(HyperparamOpt))
