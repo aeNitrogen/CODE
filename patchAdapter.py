@@ -41,7 +41,7 @@ def translate_dict_actions(config: dict, data_dim, architecture=""):
         # 0: default 1: value embedding + temporal embedding + positional embedding 2: value embedding + temporal
         # embedding 3: value embedding + positional embedding 4: value embedding
         enc_in=data_dim,  # enc input data dimension (for embedding)
-        dec_in=data_dim,  # PLEASE DO CHANGE BACK OTHERWISE THINGS WONT WORK was =data_dim
+        dec_in=data_dim,  # dec input data dimension (for embedding)
         c_out=config["output_size"],  # output size
         d_model=config["d_model"],  # model dimension
         n_heads=config["n_heads"],  # number of heads
