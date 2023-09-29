@@ -1,19 +1,12 @@
 import torch
-
-import models.PatchTST
-import wandb
-
 import data_loader
 import patchAdapter
 import numpy as np
-import utils_ba
 import torch.optim
 import iterators.PatchTST_Iterator
 import iterators.Autoformer_Iterator
 import iterators.Transformer_Iterator
-import iterators.NuLinear_Iterator
 import iterators.lstm_iterator
-import data_plotter
 
 
 class training_iterator:
@@ -84,22 +77,13 @@ class training_iterator:
         elif self.architecture == "NuLinear":
             self.model = patchAdapter.nulinear(config_translated)
 
-        elif self.architecture == "NuLin":
-
-            self.model = patchAdapter.nulin(config_translated)
-
-            self.optimizer = torch.optim.Adam(self.model.get_dec().parameters(), lr=lr)
-
-            self.optimizer2 = torch.optim.Adam(self.model.get_sub().parameters(), lr=lr)
-
         else:
             assert False, "please specify a supported architecture"
 
         print("DEBUG: model initialized")
 
         # print(config_translated)
-        if self.architecture not in ["NuLin"]:
-            self.optimizer = torch.optim.Adam(self.model.parameters(), lr=lr)
+        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=lr)
         # self.optimizer = torch.optim.Adam(self.model.parameters(), lr=lr)
         print("DEBUG: iterator initialization finished")
 
@@ -158,21 +142,6 @@ class training_iterator:
                                                                   self.pred_len, self.seq_len, final=final,
                                                                   attn=self.attn, name=self.dataset)
 
-        elif self.architecture in ["formerNul", "NuLin"]:
-            self.model.train()
-
-            iterators.NuLinear_Iterator.optimize(self.model, self.optimizer, self.optimizer2, self.train, batch_size,
-                                                 self.data_dim,
-                                                 self.out_dim, criterion, self.pred_len, self.seq_len)
-
-            self.model.eval()
-
-            with torch.no_grad():
-                ret_dict = iterators.NuLinear_Iterator.predict(self.model, self.val, self.train, batch_size,
-                                                               self.data_dim,
-                                                               self.out_dim, criterion, mae_crit, self.pred_len,
-                                                               self.seq_len, final=final, name=self.dataset)
-
         elif self.architecture == "Autoformer":
 
             self.model.train()
@@ -189,34 +158,6 @@ class training_iterator:
                                                                  self.seq_len, final=final, name=self.dataset)
 
         return ret_dict
-
-    def finalize(self):
-        batch_size = self.batch_size
-        truth = torch.squeeze(self.val[0, :, :])
-        if self.architecture == "PatchTST":
-            x, _ = utils_ba.get_single_pred(self.val, self.pred_len, self.seq_len, self.data_dim, self.out_dim)
-            zeros = torch.zeros_like(self.val[0, :, :])
-            with torch.no_grad():
-
-                prediction = utils_ba.split_prediction_single(self.model, x, batch_size)
-
-            prediction = prediction[0, :, :]
-            zeros[self.seq_len: self.pred_len + self.seq_len, :] = prediction
-            prediction = torch.squeeze(zeros)
-            return data_plotter.log_pred_plots(prediction.cpu(), truth.cpu())
-
-        elif self.architecture == "Autoformer":
-            x, _ = utils_ba.get_single_pred(self.val, self.pred_len, self.seq_len, self.data_dim, self.out_dim)
-            zeros = torch.zeros_like(self.val[0, :, :])
-            with torch.no_grad():
-
-                prediction = utils_ba.split_prediction_autoformer(self.model, x, batch_size)
-
-            prediction = prediction[0, :, :]
-            zeros[self.seq_len: self.pred_len + self.seq_len, :] = prediction
-            prediction = torch.squeeze(zeros)
-            return data_plotter.log_pred_plots(prediction.cpu(), truth.cpu())
-        # wandb.log({"truth": truth, "prediction": prediction})
 
     def fin(self):
         print("max_iter: " + self.iter.__str__())
