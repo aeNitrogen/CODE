@@ -10,6 +10,9 @@ import models.DLinear
 import models.NuLin
 import models.lstm
 import models.Informer_plus
+import ns_models.ns_Informer
+import ns_models.ns_Autoformer
+import ns_models.ns_Transformer
 
 
 def translate_dict_actions(config: dict, data_dim, architecture=""):
@@ -79,6 +82,10 @@ def translate_dict_actions(config: dict, data_dim, architecture=""):
             args.__setattr__("dec_in", config["output_size"])
             args.__setattr__("enc_in", data_dim - config["output_size"])
 
+    if architecture in ["ns_Transformer", "ns_Informer", "ns_Autoformer"]:
+        args.__setattr__("p_hidden_dims", config["p_hidden_dims"])
+        args.__setattr__("p_hidden_layers", config["p_hidden_layers"])
+
     return args
 
 
@@ -121,10 +128,27 @@ def nulin(config: dict):
     model = models.NuLin.Model(config)
     return model
 
+
 def lstm(config: dict):
     model = models.lstm.Model(config)
     return model
 
+
 def informer_plus(config: dict):
     model = models.Informer_plus.Model(config)
+    return model
+
+
+def ns_informer(config: dict):
+    model = ns_models.ns_Informer.Model(config)
+    return model
+
+
+def ns_transformer(config: dict):
+    model = ns_models.ns_Transformer.Model(config)
+    return model
+
+
+def ns_autoformer(config: dict):
+    model = ns_models.ns_Autoformer.Model(config)
     return model

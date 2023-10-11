@@ -77,6 +77,15 @@ class training_iterator:
         elif self.architecture == "NuLinear":
             self.model = patchAdapter.nulinear(config_translated)
 
+        elif self.architecture == "ns_Informer":
+            self.model = patchAdapter.ns_informer(config_translated)
+
+        elif self.architecture == "ns_Autoformer":
+            self.model = patchAdapter.ns_autoformer(config_translated)
+
+        elif self.architecture == "ns_Transformer":
+            self.model = patchAdapter.ns_transformer(config_translated)
+
         else:
             assert False, "please specify a supported architecture"
 
@@ -127,7 +136,7 @@ class training_iterator:
                                                            self.out_dim, criterion, mae_crit, self.pred_len,
                                                            self.seq_len, final=final, name=self.dataset)
 
-        elif self.architecture in ["Transformer", "Informer", "NuLinear", "Informer+"]:
+        elif self.architecture in ["ns_Transformer", "ns_Informer", "Transformer", "Informer", "NuLinear", "Informer+"]:
             self.model.train()
 
             iterators.Transformer_Iterator.optimize(self.model, self.optimizer, self.train, batch_size, self.data_dim,
@@ -142,7 +151,7 @@ class training_iterator:
                                                                   self.pred_len, self.seq_len, final=final,
                                                                   attn=self.attn, name=self.dataset)
 
-        elif self.architecture == "Autoformer":
+        elif self.architecture in ["Autoformer", "ns_Autoformer"]:
 
             self.model.train()
 
