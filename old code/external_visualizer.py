@@ -82,7 +82,8 @@ def plot_mix():
     plt.xlabel("steps")
     plt.ylabel("RMSE")
     ax.set_ylim([0, 0.3])
-    plt.legend()
+    #plt.legend()
+    plt.savefig("mix_error_ot")
     plt.show()
 
 
@@ -94,7 +95,8 @@ def plot_sin():
     ax.set_ylim([0, 0.3])
     plt.xlabel("steps")
     plt.ylabel("RMSE")
-    plt.legend()
+    #plt.legend()
+    plt.savefig("sin_error_ot")
     plt.show()
 
 def plot_C():
@@ -105,8 +107,8 @@ def plot_C():
     #ax.set_ylim([0, 0.3])
     plt.xlabel("steps")
     plt.ylabel("RMSE")
-    plt.legend()
-    plt.savefig("cheetah_error")
+    #plt.legend()
+    plt.savefig("cheetah_error_ot")
     plt.show()
 
 def plot_M():
@@ -117,8 +119,8 @@ def plot_M():
     # ax.set_ylim([0, 0.3])
     plt.xlabel("steps")
     plt.ylabel("RMSE")
-    plt.legend()
-    plt.savefig("maze_eot")
+    #plt.legend()
+    plt.savefig("maze_error_ot")
     plt.show()
 
 def plot_special():
@@ -136,5 +138,7 @@ def plot_special():
     print("saved!")
     # something is wrong here do not use
 
+#plot_mix()
+#plot_sin()
 plot_M()
-plot_C()
+#plot_C()

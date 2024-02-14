@@ -2,7 +2,7 @@
 # Slurm config bwuni gpu
 name: "SLURM"   # MUST BE "SLURM"
 partition: "dev_gpu_4_a100"  # "single" for cpu, "gpu_4" or gpu_8" for gpu, "gpu_4_a100
-job-name: "P_MX" # this will be the experiment's name in slurm
+job-name: "P_MX_N" # this will be the experiment's name in slurm
 num_parallel_jobs: 1  # max number of jobs executed in parallel
 ntasks: 1   #  leave that like it is
 cpus-per-task: 8   # there are 5 cores for each GPU on the gpu_8 queue and 10 per GPU on the gpu_4 queue. Never use 5! don't ask why!
@@ -14,11 +14,13 @@ sbatch_args:   # gpus need to be explicitly requested using this
 ---
 name: "DEFAULT"
 ---
-name: "PMX"
+name: "PMX_N"
 
 run_cap: 5000
 
-path: "/home/kit/anthropomatik/qh0834/Alr/Thesis/Results/tests/PatchTST"
+path: "/home/kit/stud/uvorp/Alr/Results/PatchTST"
+debug: True
+debugall: True
 iterations: 1000
 repetitions: 1
 reps_per_job: 1
@@ -83,7 +85,7 @@ params:
 
 wandb_sweep:
   # program: training_iterator.py
-  name: "PMX"
+  name: "PMX_N"
   metric:
     name: "validation_loss"
     goal: "minimize"
@@ -121,11 +123,11 @@ wandb_sweep:
     final:
       values: [ True ]
     seed:
-      values: [ 1,2,3 ]
+      values: [ 23 ]
     lookback_window:
       values: [ 150]
-    ablation:
-      values: [ "action_zero" ]
+    #ablation:
+    #  values: [ "action_zero" ]
 
 wandb:
   project: "battery"

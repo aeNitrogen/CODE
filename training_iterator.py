@@ -7,7 +7,8 @@ import iterators.PatchTST_Iterator
 import iterators.Autoformer_Iterator
 import iterators.Transformer_Iterator
 import iterators.lstm_iterator
-
+import iterators.nsTransformer_Iterator
+import iterators.S4_Iterator
 
 class training_iterator:
     def __init__(self, config: dict):
@@ -86,6 +87,9 @@ class training_iterator:
         elif self.architecture == "ns_Transformer":
             self.model = patchAdapter.ns_transformer(config_translated)
 
+        elif self.architecture == "s4":
+            self.model = patchAdapter.s4(config_translated)
+
         else:
             assert False, "please specify a supported architecture"
 
@@ -100,12 +104,13 @@ class training_iterator:
         batch_size = self.batch_size
         criterion = torch.nn.MSELoss()
         mae_crit = torch.nn.L1Loss()
-
         final = False
 
         self.iter += 1
+        # print("DEBUG: Iteration No. " + self.iter.__str__())
         if self.iter == self.iterations:
             final = True
+            print("DEBUG: Final iteration reached")
 
         if self.architecture in ["PatchTST", "NLinear", "DLinear"]:
 
@@ -118,6 +123,21 @@ class training_iterator:
 
             with torch.no_grad():
                 ret_dict = iterators.PatchTST_Iterator.predict(self.model, self.val, self.train, batch_size,
+                                                               self.data_dim,
+                                                               self.out_dim, criterion, mae_crit, self.pred_len,
+                                                               self.seq_len, final=final, name=self.dataset)
+
+        elif self.architecture in ["s4"]:
+
+            self.model.train()
+
+            iterators.S4_Iterator.optimize(self.model, self.optimizer, self.train, batch_size, self.data_dim,
+                                                 self.out_dim, criterion, self.pred_len, self.seq_len)
+
+            self.model.eval()
+
+            with torch.no_grad():
+                ret_dict = iterators.S4_Iterator.predict(self.model, self.val, self.train, batch_size,
                                                                self.data_dim,
                                                                self.out_dim, criterion, mae_crit, self.pred_len,
                                                                self.seq_len, final=final, name=self.dataset)
@@ -136,7 +156,7 @@ class training_iterator:
                                                            self.out_dim, criterion, mae_crit, self.pred_len,
                                                            self.seq_len, final=final, name=self.dataset)
 
-        elif self.architecture in ["ns_Transformer", "ns_Informer", "Transformer", "Informer", "NuLinear", "Informer+"]:
+        elif self.architecture in ["ns_Informer", "Transformer", "Informer", "NuLinear", "Informer+"]:
             self.model.train()
 
             iterators.Transformer_Iterator.optimize(self.model, self.optimizer, self.train, batch_size, self.data_dim,
@@ -147,6 +167,21 @@ class training_iterator:
 
             with torch.no_grad():
                 ret_dict = iterators.Transformer_Iterator.predict(self.model, self.val, self.train, batch_size,
+                                                                  self.data_dim, self.out_dim, criterion, mae_crit,
+                                                                  self.pred_len, self.seq_len, final=final,
+                                                                  attn=self.attn, name=self.dataset)
+
+        elif self.architecture in ["ns_Transformer"]:
+            self.model.train()
+
+            iterators.nsTransformer_Iterator.optimize(self.model, self.optimizer, self.train, batch_size, self.data_dim,
+                                                    self.out_dim, criterion, self.pred_len, self.seq_len,
+                                                    attn=self.attn)
+
+            self.model.eval()
+
+            with torch.no_grad():
+                ret_dict = iterators.nsTransformer_Iterator.predict(self.model, self.val, self.train, batch_size,
                                                                   self.data_dim, self.out_dim, criterion, mae_crit,
                                                                   self.pred_len, self.seq_len, final=final,
                                                                   attn=self.attn, name=self.dataset)

@@ -59,11 +59,12 @@ def predict(model, data, train_data, batch_size, data_dim, out_dim, criterion, m
         truth = torch.squeeze(data[0, :, data_dim - y.size(1):])
         x, _ = utils.input_provider.get_input(data, pred_len, seq_len, data_dim, out_dim, prediction=True)
         prediction = utils.prediction.split_prediction(model, x, batch_size)
-        print("wat")
+        # print("wat")
+        prediction = prediction[:, :, data_dim - out_dim:]  # maybe
         prediction = torch.squeeze(prediction[0, :, :])
-        print(prediction.size())
-        print(truth.size())
+        # print(prediction.size())
+        # print(truth.size())
         update_dict = data_plotter.log_pred_plots(prediction.cpu(), truth.cpu(), pred_len=pred_len)
         ret_dict.update(update_dict)
-        print("wat")
+        # print("wat")
     return ret_dict

@@ -3,7 +3,8 @@ import torch.nn as nn
 from ns_layers.Transformer_EncDec import Decoder, DecoderLayer, Encoder, EncoderLayer
 from ns_layers.SelfAttention_Family import DSAttention, AttentionLayer
 from layers.Embed import DataEmbedding
-
+# new
+from layers.Embed import DataEmbedding_wo_temp
 
 class Projector(nn.Module):
     '''
@@ -46,9 +47,9 @@ class Model(nn.Module):
         self.output_attention = configs.output_attention
 
         # Embedding
-        self.enc_embedding = DataEmbedding(configs.enc_in, configs.d_model, configs.embed, configs.freq,
+        self.enc_embedding = DataEmbedding_wo_temp(configs.enc_in, configs.d_model, configs.embed, configs.freq,
                                            configs.dropout)
-        self.dec_embedding = DataEmbedding(configs.dec_in, configs.d_model, configs.embed, configs.freq,
+        self.dec_embedding = DataEmbedding_wo_temp(configs.dec_in, configs.d_model, configs.embed, configs.freq,
                                            configs.dropout)
         # Encoder
         self.encoder = Encoder(
@@ -101,7 +102,7 @@ class Model(nn.Module):
         x_enc = x_enc / std_enc
         x_dec_new = torch.cat([x_enc[:, -self.label_len: , :], torch.zeros_like(x_dec[:, -self.pred_len:, :])], dim=1).to(x_enc.device).clone()
 
-        tau = self.tau_learner(x_raw, std_enc).exp()     # B x S x E, B x 1 x E -> B x 1, positive scalar    
+        tau = self.tau_learner(x_raw, std_enc).exp()     # B x S x E, B x 1 x E -> B x 1, positive scalar
         delta = self.delta_learner(x_raw, mean_enc)      # B x S x E, B x 1 x E -> B x S
 
         # Model Inference
@@ -113,7 +114,6 @@ class Model(nn.Module):
 
         # De-normalization
         dec_out = dec_out * std_enc + mean_enc
-
         if self.output_attention:
             return dec_out[:, -self.pred_len:, :], attns
         else:

@@ -1,0 +1,114 @@
+---
+# Slurm config bwuni gpu
+name: "SLURM"   # MUST BE "SLURM"
+partition: "gpu_8"  # "single" for cpu, "gpu_4" or gpu_8" for gpu
+job-name: "S4_C" # this will be the experiment's name in slurm
+num_parallel_jobs: 1  # max number of jobs executed in parallel
+ntasks: 1   #  leave that like it is
+cpus-per-task: 8   # there are 5 cores for each GPU on the gpu_8 queue and 10 per GPU on the gpu_4 queue. Never use 5! don't ask why!
+mem-per-cpu: 8000 # in mb
+time: 100   # in minutes
+sbatch_args:   # gpus need to be explicitly requested using this
+  gres: "gpu:1" #and this (specifies number of gpus requested)
+
+---
+name: "DEFAULT"
+---
+name: "S4_C"
+
+run_cap: 1 # doesnt do shit
+
+path: "/home/kit/stud/uvorp/Alr/Results/S5"
+iterations: 1000
+repetitions: 1
+reps_per_job: 1
+reps_in_parallel: 1
+params:
+  iterations: 1000 # must be same as iterations above
+  seed: 8055
+  architecture: "s4"
+
+  prediction_length: 300
+  lookback_window: 60
+  output_size: 9
+
+  # _______News_______
+  gpu_batch_size: 100000
+  real_output_size: 9
+  dataset: "CheetahNeuripsData.pkl"
+  #dataset: "SinMixData.pkl"
+  final: False
+
+  # _______PatchTST_______
+
+  affine: 0
+  d_fcn: 256
+  d_model: 1024
+  decomposition: 1
+  dropout: 0
+  encoder_layers: 1
+  fc_dropout: 0
+  head_dropout: 0
+  individual: 1
+  kernel_size: 3
+  learning_rate: 0.06
+  n_heads: 16
+  overlap: 0
+  revin: 1
+  subtract_last: 0
+  patch_length: 16
+  stride: 8
+  padding_patch: "end"
+
+  # _______Formers_______
+
+  embed_type: 3 # 0: default 1: value embedding + temporal embedding + positional embedding 2: value embedding + temporal embedding 3: value embedding + positional embedding 4: value embedding
+  # input_dim: # depends on data, done in code
+  # output_size: 9 # depends on data and task # moved cause of actions
+  #values: [ 256, 512, 1024, 2048, 4096, 8192 ]
+  decoder_layers: 1
+  moving_average: 25 # try 5, 50, 100
+  distilling: True # attention distilling in encoder
+  #values: [ 0, 0.1, 0.3, 0.5 ]
+  embed: "timeF" # options [timeF, fixed, learned]
+  activation: "gelu" # options "relu", "gelu"
+  output_attention: False
+  frequency: "t" # used for temporal encoding
+
+  # _______S4_______
+
+  bottleneck: 1 # int, divisor of d_model
+  gate: 1 # int, multiplier of d_model
+  gate_act: "id"
+  mult_act: "id"
+  final_act: "glu" # other possibilities: id, tanh, relu, gelu, elu, silu, glu, sigmoid, softplus
+  tie_dropout: False
+  transposed: True
+  n_layers: 2
+  d_state: 128
+  channels: 1
+
+wandb_sweep:
+  name: "S4_C"
+  metric:
+    name: "validation_loss"
+    goal: "minimize"
+  method: "grid"
+  run_cap: 5000 # run cap that actually works
+
+
+  parameters:
+    d_model:
+      values: [256, 128, 64]
+    d_state:
+      values: [256, 128, 64]
+    learning_rate:
+      values: [0.0001, 0.0005] # 0.001 too big
+    final:
+      values: [False]
+
+wandb:
+  project: "battery"
+  sweep_id: "new"
+  group: "second iteration"
+  hp_combinations_per_agent: 5000

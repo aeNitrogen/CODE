@@ -1,7 +1,7 @@
 from cw2 import experiment, cw_error, cluster_work
 from cw2.cw_data import cw_logging
 from cw2.experiment import ExperimentSurrender
-import ClusterAdapter
+# import ClusterAdapter
 from sweep_work.create_sweep import create_sweep
 from sweep_work.sweep_logger import SweepLogger
 from sweep_work.experiment_wrappers import wrap_experiment
@@ -14,7 +14,8 @@ import torch
 class HyperparamOpt_nonIterative(experiment.AbstractExperiment):
 
     def run(self, cw_config: dict, rep: int, logger: cw_logging.LoggerArray) -> None:
-        ClusterAdapter.run(cw_config)
+        pass
+        # ClusterAdapter.run(cw_config)
 
     def initialize(
         self, cw_config: dict, rep: int, logger: cw_logging.LoggerArray
@@ -53,8 +54,10 @@ if __name__ == "__main__":
 
     # WANDB_API_KEY = None
     # wandb.login(key=WANDB_API_KEY)  # , anonymous="never", )
-
-    cw = cluster_work.ClusterWork(wrap_experiment(HyperparamOpt))
-    create_sweep(cw)
-    cw.add_logger(SweepLogger())
-    cw.run()
+    try:
+        cw = cluster_work.ClusterWork(wrap_experiment(HyperparamOpt))
+        create_sweep(cw)
+        cw.add_logger(SweepLogger())
+        cw.run()
+    except:
+        print('wrapper crashed')

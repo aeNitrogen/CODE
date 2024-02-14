@@ -94,7 +94,7 @@ def assign(data, name):
     opt_test_end = 100
 
     if name == "CheetahNeuripsData.pkl":
-        opt_train_end = 100
+        opt_train_end = 200
         opt_test_end = 100
     elif name == "mediumNeuripsData.pkl":
         opt_train_end = 500

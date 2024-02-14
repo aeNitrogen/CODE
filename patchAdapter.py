@@ -13,7 +13,10 @@ import models.Informer_plus
 import ns_models.ns_Informer
 import ns_models.ns_Autoformer
 import ns_models.ns_Transformer
+import models.s4py
 
+def set_attr(args: Namespace, config: dict, name: str):
+    args.__setattr__(name, config[name])
 
 def translate_dict_actions(config: dict, data_dim, architecture=""):
     args = Namespace(
@@ -70,7 +73,7 @@ def translate_dict_actions(config: dict, data_dim, architecture=""):
         print("DEBUG: dec_in = " + (data_dim - config["output_size"]).__str__())
 
     if architecture in ["NuLin", "NuLinear"]:
-        args.__setattr__("seq_len", config["lookback_window"])
+        args.__setattr__("seq_len", config["lookback_window"])  # TODO see input provider
 
     if architecture in ["NuLin"]:
         if config["revin"] == 1:
@@ -85,6 +88,29 @@ def translate_dict_actions(config: dict, data_dim, architecture=""):
     if architecture in ["ns_Transformer", "ns_Informer", "ns_Autoformer"]:
         args.__setattr__("p_hidden_dims", config["p_hidden_dims"])
         args.__setattr__("p_hidden_layers", config["p_hidden_layers"])
+        args.__setattr__("seq_len", config["lookback_window"])  # TODO see input provider
+        # print("hidden layers set as " + config["p_hidden_layers"].__str__())
+        # print(type(config["p_hidden_layers"]))
+
+    if architecture in ["s4"]:
+        set_attr(args, config, "n_layers")
+        set_attr(args, config, "d_state")
+        set_attr(args, config, "bottleneck")
+        set_attr(args, config, "gate")
+        set_attr(args, config, "gate_act")
+        set_attr(args, config, "mult_act")
+        set_attr(args, config, "final_act")
+        set_attr(args, config, "tie_dropout")
+        set_attr(args, config, "transposed")
+        set_attr(args, config, "channels")
+
+        if args.gate == 0:
+            args.__setattr__("gate", None)
+        if args.bottleneck == 0:
+            args.__setattr__("bottleneck", None)
+        if args.channels == 0:
+            args.__setattr__("channels", None)
+
 
     return args
 
@@ -151,4 +177,8 @@ def ns_transformer(config: dict):
 
 def ns_autoformer(config: dict):
     model = ns_models.ns_Autoformer.Model(config)
+    return model
+
+def s4(config: dict):
+    model = models.s4py.Model(config)
     return model
